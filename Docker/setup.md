@@ -1,5 +1,10 @@
 # kafka-on-docker
 
+### Run Kafka with Docker Compose
+`docker compose up -d`
+
+## Run a Kafka Producer (producer.py)
+
 ### Install confluent-kafka dependency
 `pip3 install confluent-kafka`
 
@@ -12,4 +17,4 @@
 #### View all events in a topic
 `docker exec -it kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic orders --from-beginning`
 
-
+## Run a Kafka Consumer (tracker.py)
