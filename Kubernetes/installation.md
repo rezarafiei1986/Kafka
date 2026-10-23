@@ -19,11 +19,13 @@ data:
     process.roles=broker,controller
     node.id=${BROKER_ID}
 
-    controller.quorum.voters=0@kafka-0.kafka-headless:9093,1@kafka-1.kafka-headless:9093,2@kafka-2.kafka-headless:9093
+    controller.quorum.voters=0@kafka-0.kafka-headless.kafka.svc.cluster.local:9093,1@kafka-1.kafka-headless.kafka.svc.cluster.local:9093,2@kafka-2.kafka-headless.kafka.svc.cluster.local:9093
     controller.listener.names=CONTROLLER
 
-    listeners=PLAINTEXT://:9092
-    advertised.listeners=PLAINTEXT://192.168.163.133:30090
+    listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+    advertised.listeners=PLAINTEXT://${POD_NAME}.kafka-headless.kafka.svc.cluster.local:9092
+
+    listener.security.protocol.map=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
     inter.broker.listener.name=PLAINTEXT
 
     log.dirs=/var/lib/kafka/data
@@ -189,18 +191,35 @@ spec:
 ## 6. Test:
 Run a temporary pod to test Kafka from inside cluster. From shell we have created a topic, listed the topics, publish a message and consume the message from Kafka
 ```sh
-kubectl run kafka-client --rm -it --image=apache/kafka:3.7.0 -- bash
 
-kafka-client-test:/$ /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-0:9092 --create --topic test-topic --partitions 3 --replication-factor 1
+root@ubuntu24-kind:/home/kafka# kubectl run kafka-client --rm -it --image=apache/kafka:4.4.0 -- bash
+All commands and output from this session will be recorded in container logs, including credentials and sensitive information passed through the command prompt.
+If you don't see a command prompt, try pressing enter.
+kafka-client:/$
+kafka-client:/$
+kafka-client:/$ /opt/kafka/bin/kafka-topics.sh \
+  --bootstrap-server kafka-0.kafka-headless.kafka.svc.cluster.local:9092 \
+  --create \
+  --topic test-topic \
+  --partitions 3 \
+  --replication-factor 3
+
+
 Created topic test-topic.
+kafka-client:/$
+kafka-client:/$
+kafka-client:/$ /opt/kafka/bin/kafka-topics.sh \
+  --bootstrap-server kafka-0.kafka-headless.kafka.svc.cluster.local:9092 \
+  --describe \
+  --topic test-topic
 
-kafka-client-test:/$ /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-0.kafka-headless:9092 --list
-test-topic
+Topic: test-topic       TopicId: IURkew9URd6FanfIaH25fQ PartitionCount: 3       ReplicationFactor: 3    Configs: min.insync.replicas=2
+        Topic: test-topic       Partition: 0    Leader: 2       Replicas: 2,0,1 Isr: 2,0,1      Elr:    LastKnownElr:
+        Topic: test-topic       Partition: 1    Leader: 0       Replicas: 0,1,2 Isr: 0,1,2      Elr:    LastKnownElr:
+        Topic: test-topic       Partition: 2    Leader: 1       Replicas: 1,2,0 Isr: 1,2,0      Elr:    LastKnownElr:
+kafka-client:/$
+kafka-client:/$
 
-kafka-client-test:/$ /opt/kafka/bin/kafka-console-producer.sh --broker-list kafka-0.kafka-headless:9092 --topic test-topic
->hello
 
-kafka-client-test:/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka-0.kafka-headless:9092 --topic test-topic --from-beginning
-hello
 ```
 
