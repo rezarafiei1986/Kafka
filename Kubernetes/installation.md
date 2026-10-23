@@ -1,4 +1,4 @@
-### Deploying Apache Kafka on Kubernetes
+# Deploying Apache Kafka on Kubernetes
 This setup provides a solid foundation for building real-time data pipelines, event-driven applications, and microservices architectures.
 
 ## 1. Create Namespace:
@@ -34,18 +34,18 @@ data:
 ```
 
 
-# process.roles: 
+#### process.roles: 
 Kafka will acts as broker and also controller.
-# advertised.listeners: 
+#### advertised.listeners: 
 Kafka brokers tell clients how to reach them. For pods inside the cluster, use kafka-$(HOSTNAME).kafka:9092 (DNS name). From outside of cluster, use external IP:port to connect in Kafka cluster.
-# num.partitions: 
+#### num.partitions: 
 How many brokers will store a copy of this topic’s partitions. Internal consumer offsets replicated on all 3 brokers.
-# default.replication.factor: 
+#### default.replication.factor: 
 How many copies of the transaction log exist. Here Transactions log replicated on all 3 brokers.
-# min.insync.replicas: 
+#### min.insync.replicas: 
 A transaction will only commit if at least 2 replicas are in sync.
 
-# Now create this config map to store Kafka configuration in ConfigMap.
+#### Now create this config map to store Kafka configuration in ConfigMap.
 ```sh
 kubectl apply -f kafka-config.yaml -n kafka
 kubectl get configmap -n kafka
@@ -124,18 +124,18 @@ spec:
             storage: 1Gi
 ```
 
-# export BROKER_ID=${HOSTNAME##*-} 
+#### export BROKER_ID=${HOSTNAME##*-} 
 sets a unique broker ID from the pod name.
-# export POD_NAME=${HOSTNAME} 
+#### export POD_NAME=${HOSTNAME} 
 saves the pod hostname for client access.
-# sed … 
+#### sed … 
 replaces placeholders in the config template with actual broker ID and pod name.
-# kafka-storage.sh format … || true 
+#### kafka-storage.sh format … || true 
 initializes Kafka storage
-# exec kafka-server-start.sh … 
+#### exec kafka-server-start.sh … 
 starts the Kafka broker process.
 
-# Now create this statefulset and verify the pods.
+#### Now create this statefulset and verify the pods.
 ```sh
 kubectl apply -f kafka-statefulset.yaml -n kafka 
 kubectl get statefulset -n kafka 
