@@ -182,6 +182,9 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: kafka-0
 ```
+```sh
+ kubectl  apply -f nodeport-service.yaml -n kafka
+```
 
 ## 6. Test:
 Run a temporary pod to test Kafka from inside cluster. From shell we have created a topic, listed the topics, publish a message and consume the message from Kafka
