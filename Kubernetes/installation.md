@@ -23,7 +23,7 @@ data:
     controller.listener.names=CONTROLLER
 
     listeners=PLAINTEXT://:9092
-    advertised.listeners=PLAINTEXT://192.168.65.9:30090
+    advertised.listeners=PLAINTEXT://192.168.163.133:30090
     inter.broker.listener.name=PLAINTEXT
 
     log.dirs=/var/lib/kafka/data
@@ -72,7 +72,7 @@ spec:
     spec:
       containers:
         - name: kafka
-          image: apache/kafka:3.7.0
+          image: apache/kafka:4.4.0
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_NAME
